@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        
+    </head>
+    <body>
+        <p><strong>Instrucciones:</strong> Exporte la hoja que desea analizar como un archivo CSV, cárguela en el input que se muestra debajo y presione 'Analizar'.</p>
+        <p>Abra la consola de JavaScript para ver el progreso de las peticiones. Los resultados se irán imprimiendo debajo del input conforme se vayan recibiendo. Para guardarlos, seleccione, copie y pegue en un archivo CSV.</p>
+        <p style="color:red;">Si desea analizar la hoja 'Bajas', en el archivo <code>public/javascripts/get-latlong.js</code> comente la línea <strong>6</strong> y descomente la línea <strong>7</strong></p>
+        <form>
+            <label for="file">Cargue un archivo CSV:</label>
+            <input type="file" id="file" accept=".csv" required="required">
+            <button id="submit-file">Analizar</button>
+        </form>
+        <div id="results"></div>
+        <script src="javascripts/jquery.min.js"></script>
+        <script src="javascripts/papaparse.min.js"></script>
+        <script src="javascripts/get-latlong.js"></script>
+    </body>
+</html>
