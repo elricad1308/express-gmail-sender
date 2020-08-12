@@ -1,0 +1,25 @@
+extends layout
+
+block content
+    h1 Cálculo de distancia
+    p <strong>Instrucciones: cargue el archivo CSV con la información de los talleres en el input que aparece debajo, seleccione una dirección en la lista, y presione 'Calcular'
+
+    form(action="http://localhost:3000/distance/calc", method="POST" enctype="multipart/form-data")
+        input(type="file" name="file")
+        hr
+        label(for="dir") Dirección:
+        select(id="dir" name="dir")
+            option(value="0") 1 - Córdoba 42, Roma Norte, Ciudad de México
+            option(value="1") 2 - Cadiz 50, Alamos, Ciudad de México
+            option(value="2") 3 - Reforma 22, Juárez, Ciudad de México
+            option(value="3") 4 - Tecamachalco 170,  Lomas de Tecamachalco, Estado de México
+            option(value="4") 5 - Calle Abasolo 75, Centro Tlalnepantla, Estado de México
+            option(value="5") 6 - Enrique Rébsamen  343, Esperanza, Ciudad de México
+            option(value="6") 7 - Cerro Zacayuca 142, Campestre Churubusco, Ciudad de México
+            option(value="7") 8 - Gómez Farias 600, Santa Fe, Paseo de las Lomas, Ciudad de México, CDMX
+            option(value="8") 9 - Pericos 1313, Campesina Nueva, Chihuahua
+            option(value="9") 10 - Avenida Sanders 1518, Ciudad Juárez, Chihuahua
+            option(value="10") 11 - Calle de la Reforma 123. San Benito. Hermosillo
+            option(value="11") 12 - Av. Ing. Mario Morúa Johnson 12, Luis Donaldo Colosio, Colosio, Hermosillo, Sonora
+        
+        input(type="submit" value="Calcular") 
