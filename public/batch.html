@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head></head>
+    <body>
+        <form>
+            <label for="file">Cargue un archivo CSV:</label>
+            <input type="file" id="file" accept=".csv" required="required">
+            <hr>
+            <button id="analyze">Analizar</button>
+        </form>
+        <hr>
+        <div id="results"></div>
+        <script src="javascripts/jquery.min.js"></script>
+        <script src="javascripts/papaparse.min.js"></script>
+        <script src="javascripts/batch.js"></script>
+    </body>
+</html>
