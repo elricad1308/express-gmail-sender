@@ -63,9 +63,10 @@ const headers = {
     longitud_anexo: 46
 };
 
+const container = $('#results');
+
 function calcDistancias(results){
     var data = results.data;
-    var container = $('#results');
 
     // Index placeholders
     let length = data[0].length;
@@ -106,7 +107,6 @@ function calcDistancias(results){
 }
 
 function createSqlStatement(row){
-
     return `(
         '${row[headers.id_taller].trim()}',
         '${row[headers.oficina_regional].trim()}',
@@ -157,7 +157,6 @@ function createSqlStatement(row){
 
 function dumpSql(results){
     var data = results.data;
-    var container = $('#results');
 
     // Imprime el encabezado de la consulta
     container.append(`INSERT INTO talleres (
@@ -215,7 +214,6 @@ function dumpSql(results){
 
 async function getCoordsActuales(results){
     var data = results.data;
-    var container = $('#results');
 
     container.html('');
 
@@ -255,7 +253,6 @@ async function getCoordsActuales(results){
 
 async function getCoordsAnexoActuales(results){
     var data = results.data;
-    var container = $('#results');
 
     container.html('');
 
@@ -307,7 +304,6 @@ async function getCoordsAnexoActuales(results){
 
 async function getCoordsBaja(results){
     var data = results.data;
-    var container = $('#results');
 
     container.html('');
 
@@ -352,6 +348,38 @@ async function getCoordsBaja(results){
     }
 }
 
+async function getCoordsPowerBI(results){
+    let data = results.data,
+        jqxhr = null,
+        direccion = null;
+
+    container.html('');
+
+    for(var i = 1; i < data.length; i++){
+        // Algunos talleres ya tienen coordenadas
+        if(data[i][6] == '' && data[i][7] == '') {
+            direccion = `${data[i][3]} ${data[i][4]} ${data[i][5]}`;
+            jqxhr = await getLatLong(direccion);
+
+            try {
+                const location = jqxhr.results[0].geometry.location;
+                data[i][6] = location.lat;
+                data[i][7] = location.lng;
+            } catch(err) {
+                console.error(err);
+                data[i][6] = 'Unknown';
+                data[i][7] = 'Unknown';
+            }
+
+            
+        } else {
+            console.error(`skipped row ${i}`);
+        }
+
+        container.append(`${data[i].join('|')}<br>`);
+    }
+}
+
 function getLatLong(dir) {
     var base = 'https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyD8v8wSeERbORdMB-byl7XhF2ki-P2PMO0&';
     var encoded_dir = encodeURIComponent(dir);
@@ -370,7 +398,7 @@ function parse(){
             // complete: getCoordsBaja              // Función diseñada para la estructura de la hoja 'Baja'
             // complete: getCoordsAnexoActuales     // Función diseñada para los anexos de actuales
             // complete: calcDistancias             // Función para calcular distancias
-            complete: dumpSql                      // Función para crear sentencias sql
+            complete: getCoordsPowerBI              // Función para crear sentencias sql
         },
         complete: function(){
             alert('Todas las direcciones fueron procesadas');

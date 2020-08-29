@@ -77,6 +77,28 @@ function createStatement(row){
     )`;
 }
 
+function dumpMarca(results){
+    var data = results.data;
+    var container = $('#results');
+
+    var tipo = 1;
+    
+
+    data.forEach((el, idx) => {
+        switch(parseInt(el[headers.tipo_vehiculo]))
+        {
+            case 5 : case 15 :
+                tipo = 2; break;
+            case 2 : case 4 : case 7 : case 9 : case 12 : case 14 : case 17 :
+                tipo = 3; break;
+            case 0 : case 1 : case 3 : case 6 : case 8 : case 11 : case 16 : default :
+                tipo = 1; break;
+        }
+        if(idx != 0)
+            container.append(`UPDATE batch_pruebas_csv t1 INNER JOIN vehiculos t2 ON t1.token = t2.access_token SET t1.marca_vehiculo = '${el[headers.marca_vehiculo]}', t2.marca = '${el[headers.marca_vehiculo]}', t2.tipo = ${tipo} WHERE t1.id_prueba = ${idx};<br>`)
+    });
+}
+
 function dumpSql(results){
     var data = results.data;
     var container = $('#results');
@@ -127,7 +149,7 @@ function parse(){
         config: {
             delimiter: ",",
             header: false,
-            complete: dumpSql
+            complete: dumpMarca
         }, 
         complete: function(){
             alert('Todas las pruebas procesadas con éxito');
