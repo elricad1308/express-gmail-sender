@@ -4,61 +4,63 @@ const headers = {
     oficina_cargada          : 2,
     rfc                      : 3,
     indice_normalizado       : 4,
-    tipo_prioridad           : 5,
-    nivel_asignacion         : 6,
-    observacion              : 7,
-    clave_mx                 : 8,
-    razon_social             : 9,
-    nombre_comercial         : 10,
-    calle                    : 11,
-    numero                   : 12,
-    num_int                  : 13,
-    cve_col                  : 14,
-    colonia                  : 15,
-    cp                       : 16,
-    cve_mpio                 : 17,
-    delegacion_municipio     : 18,
-    cve_estado               : 19,
-    estado                   : 20,
-    latitud                  : 21,
-    longitud                 : 22,
-    clave_proveedor          : 23,
-    tipo_proveedor           : 24,
-    clave_categoria          : 25,
-    tipo_unidad              : 26,
-    multimarca               : 27,
-    clave_marca              : 28,
-    marcas_atienden          : 29,
-    clave_anios              : 30,
-    modelos                  : 31,
-    telefono1                : 32,
-    extension1               : 33,
-    telefono2                : 34,
-    extension2               : 35,
-    telefono3                : 36,
-    extension3               : 37, 
-    capacidad_maxima         : 38,
-    capacidad_actual         : 39,
-    supervisor_encargado     : 40,
-    correo_supervisor        : 41,
-    nombre_anexo             : 42,
-    calle_anexo              : 43,
-    numero_anexo             : 44,
-    num_int_anexo            : 45,
-    cve_col_anexo            : 46,
-    colonia_anexo            : 47,
-    cp_anexo                 : 48,
-    cve_mpio_anexo           : 49,
-    delg_municipio_anexo     : 50,
-    cve_edo_anexo            : 51,
-    estado_anexo             : 52,
-    latitud_anexo            : 53,
-    longitud_anexo           : 54,
-    telefono_anexo           : 55,
-    extension_anexo          : 56,
-    horario_anexo            : 57,
-    responsable_anexo        : 58,
-    correo_responsable_anexo : 59
+    regla_asignacion         : 5,
+    tipo_prioridad           : 6,
+    nivel_asignacion         : 7,
+    observacion              : 8,
+    clave_mx                 : 9,
+    razon_social             : 10,
+    nombre_comercial         : 11,
+    calle                    : 12,
+    numero                   : 13,
+    num_int                  : 14,
+    cve_col                  : 15,
+    colonia                  : 16,
+    cp                       : 17,
+    cve_mpio                 : 18,
+    delegacion_municipio     : 19,
+    cve_estado               : 20,
+    estado                   : 21,
+    latitud                  : 22,
+    longitud                 : 23,
+    clave_proveedor          : 24,
+    recibe_grua              : 25,
+    tipo_proveedor           : 26,
+    clave_categoria          : 27,
+    tipo_unidad              : 28,
+    multimarca               : 29,
+    clave_marca              : 30,
+    marcas_atienden          : 31,
+    clave_anios              : 32,
+    modelos                  : 33,
+    telefono1                : 34,
+    extension1               : 35,
+    telefono2                : 36,
+    extension2               : 37,
+    telefono3                : 38,
+    extension3               : 39, 
+    capacidad_maxima         : 40,
+    capacidad_actual         : 41,
+    supervisor_encargado     : 42,
+    correo_supervisor        : 43,
+    nombre_anexo             : 44,
+    calle_anexo              : 45,
+    numero_anexo             : 46,
+    num_int_anexo            : 47,
+    cve_col_anexo            : 48,
+    colonia_anexo            : 49,
+    cp_anexo                 : 50,
+    cve_mpio_anexo           : 51,
+    delg_municipio_anexo     : 52,
+    cve_edo_anexo            : 53,
+    estado_anexo             : 54,
+    latitud_anexo            : 55,
+    longitud_anexo           : 56,
+    telefono_anexo           : 57,
+    extension_anexo          : 58,
+    horario_anexo            : 59,
+    responsable_anexo        : 60,
+    correo_responsable_anexo : 61
 };
 
 const headers_baja = {
@@ -107,8 +109,10 @@ const headers_baja = {
 let container = $('#results');
 
 function createStatement(row, idx){
-    let indice_normalizado = row[headers.indice_normalizado].trim() != '' ? 
-            parseInt(row[headers.indice_normalizado]) : 0,
+    let indice_normalizado = row[headers.indice_normalizado].trim().endsWith('%') ? 
+            parseInt(row[headers.indice_normalizado]) : 75,
+
+        regla_asignacion = row[headers.regla_asignacion].trim() != '' ? 1 : 0,
 
         prioridad = getPrioridad(row[headers.tipo_prioridad].trim()),
 
@@ -129,6 +133,8 @@ function createStatement(row, idx){
         cve_estado = row[headers.cve_estado] != 'NULL' ?
             parseInt(row[headers.cve_estado]) : 0,
 
+        recibe_grua = row[headers.recibe_grua].trim() != 'NO' ? 1 : 0,
+
         clave_categoria = getClaveCategoria(row[headers.clave_categoria]),
 
         extension1 = row[headers.extension1].trim() != '' ? 
@@ -140,23 +146,23 @@ function createStatement(row, idx){
         extension3 = row[headers.extension3].trim() != '' ? 
             parseInt(row[headers.extension3]) : 0,
 
-        cve_col_anexo = row[headers.cve_col_anexo].trim() != '#N/A' ?
+        cve_col_anexo = row[headers.cve_col_anexo].trim() != '#N/A' && row[headers.cve_col_anexo].trim() != '' ?
             parseInt(row[headers.cve_col_anexo]) : 0,
 
-        cve_mpio_anexo = row[headers.cve_mpio_anexo].trim() != '#N/A' ?
+        cve_mpio_anexo = row[headers.cve_mpio_anexo].trim() != '#N/A' && row[headers.cve_mpio_anexo].trim() != ''?
             parseInt(row[headers.cve_mpio_anexo]) : 0,
 
-        cve_estado_anexo = row[headers.cve_edo_anexo].trim() != '#N/A' ?
+        cve_estado_anexo = row[headers.cve_edo_anexo].trim() != '#N/A' && row[headers.cve_edo_anexo].trim() != '' ?
             parseInt(row[headers.cve_edo_anexo]) : 0,
 
         cp_anexo = row[headers.cp_anexo].trim() != '' ? 
             parseInt(row[headers.cp_anexo]) : 0,
 
         latitud_anexo = row[headers.latitud_anexo] != '#N/A' && row[headers.latitud_anexo].trim() != '' ?
-            parseInt(row[headers.latitud_anexo]) : 'NULL',
+            parseFloat(row[headers.latitud_anexo]) : 'NULL',
 
         longitud_anexo = row[headers.longitud_anexo] != '#N/A' && row[headers.longitud_anexo].trim() != '' ?
-            parseInt(row[headers.longitud_anexo]) : 'NULL',
+            parseFloat(row[headers.longitud_anexo]) : 'NULL',
 
         extension_anexo = row[headers.extension_anexo].trim() != '' && row[headers.extension_anexo].trim() != '#N/A' ? 
             parseInt(row[headers.extension_anexo]) : 0;
@@ -168,6 +174,7 @@ function createStatement(row, idx){
         ,'${row[headers.oficina_cargada]}'
         ,'${row[headers.rfc]}'
         , ${indice_normalizado}
+        , ${regla_asignacion}
         , ${prioridad}
         , ${nivel_asignacion}
         , ${observacion}
@@ -187,6 +194,7 @@ function createStatement(row, idx){
         , ${row[headers.latitud]}
         , ${row[headers.longitud]}
         ,'${row[headers.clave_proveedor]}'
+        , ${recibe_grua}
         ,'${row[headers.tipo_proveedor]}'
         , ${clave_categoria}
         ,'${row[headers.tipo_unidad]}'
@@ -295,6 +303,7 @@ function dumpSql(results){
         ,oficina_cargada
         ,rfc
         ,indice_normalizado
+        ,regla_asignacion
         ,prioridad
         ,nivel_asignacion
         ,observacion
@@ -314,6 +323,7 @@ function dumpSql(results){
         ,latitud
         ,longitud
         ,clave_proveedor
+        ,recibe_grua
         ,tipo_proveedor
         ,clave_categoria
         ,tipo_unidad
@@ -450,7 +460,7 @@ function getObservacion(val) {
             observacion = 5;
             break;
 
-        case 'CON LOS DEMAS DE LA ZONA (PICACHO TLAHUAC':
+        case 'CON LOS DEMAS DE LA ZONA (PICACHO TLAHUAC)':
             observacion = 6;
             break;
 
@@ -458,11 +468,11 @@ function getObservacion(val) {
             observacion = 7;
             break;
 
-        case 'DAÑOS NO MAYORES A $21,000':
+        case 'DAÑOS MENORES A $21,000 (PARA ASEGURADO A PARTIR DEL 4TO AÑO; PARA TERCEROS TODOS)':
             observacion = 8;
             break;
 
-        case 'DAÑOS NO MAYORES A $7,000':
+        case 'DAÑOS NO MAYORES A $7,000 (PARA ASEGURADO A PARTIR DEL 4TO AÑO; PARA TERCEROS TODOS)':
             observacion = 9;
             break;
 
@@ -512,6 +522,10 @@ function getObservacion(val) {
 
         case 'VARILLAJE':
             observacion = 21;
+            break;
+
+        case 'SOLO UNIDADES ALTA GAMMA':
+            observacion = 22;
             break;
     }
 
@@ -569,7 +583,7 @@ function parse(){
         config: {
             delimiter: ",",
             header: false,
-            complete: dumpSqlBaja
+            complete: dumpSql
         }, 
         complete: function(){
             alert('Todas las pruebas procesadas con éxito');
