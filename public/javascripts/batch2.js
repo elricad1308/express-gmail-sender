@@ -25,6 +25,11 @@ const tipos2 = [
     { tipo: 99, descripcion: 'Sin Ramo'} 
 ];
 
+const tipos3 = [
+    { tipo:  5, descripcion: 'Motos'},
+    { tipo: 15, descripcion: 'Motos Obligatorio'},
+]
+
 const marcas1 = [
     'ACURA','AUDI','BAIC','BMW','BUICK','CADILLAC','CHEVROLET','CHRYSLER',
     'DODGE','DUCATI','FERRARI','FIAT','FORD','FREIGHTLINER','GENERAL MOTORS',
@@ -36,6 +41,8 @@ const marcas2 = [
     'MITSUBISHI','NISSAN','OPEL','PEUGEOT','PORSCHE','RAM','RENAULT','SEAT',
     'SMART','SUBARU','SUZUKI','TESLA','TOYOTA','VOLKSWAGEN','VOLVO','YAMAHA'
 ];
+
+const marcas3 = [ "BMW" ];
 
 const ubicaciones1 = [
     { lat: 19.70078,  lon: -101.18443 },
@@ -121,9 +128,10 @@ const headers = {
     celular              : 39
 };
 
-function createSqlStatement(row, folio, tipo, marca, ubicacion){
+function createSqlStatement(row, folio, tipo, marca, ubicacion, id){
     return (`(
-          ${row[headers.moneda_siniestro]}
+          ${id}
+        , ${row[headers.moneda_siniestro]}
         , ${row[headers.ramo_siniestro]}
         , ${row[headers.subramo_siniestro]}
         ,'${row[headers.oficina]}'
@@ -169,8 +177,10 @@ function createSqlStatement(row, folio, tipo, marca, ubicacion){
 }
 
 function dumpSql(results){
+    const max_id = 1180000;
     container.append(`INSERT INTO batch_pruebas_csv (
-         moneda_siniestro  
+         id_prueba
+        ,moneda_siniestro  
         ,ramo_siniestro
         ,subramo_siniestro
         ,oficina
@@ -213,20 +223,22 @@ function dumpSql(results){
         ,lat_referencia
         ,lon_referencia
     ) VALUES `);
+    var i = 0;
     results.data.forEach((el, idx) => {
         console.log(`processing row ${idx}`);
 
-        if(idx !=0 )
-            for(const t of tipos2) 
-                for(const m of marcas2) 
-                    for(const u of ubicaciones2)
+        if(idx !=0)
+            for(const t of tipos3) 
+                for(const m of marcas3) 
+                    for(const u of ubicaciones1){
                         container.append(`
-                            ${createSqlStatement(el, 100, t, m, u)},<br>
-                            ${createSqlStatement(el, 101, t, m, u)},<br>`
+                            ${createSqlStatement(el, 100, t, m, u, max_id + i)},<br>
+                            ${createSqlStatement(el, 101, t, m, u, max_id + i + 1000)},<br>`
                         );
-                    
-            
-        
+                        i++;
+                    }
+
+                        
     });
 }
 
