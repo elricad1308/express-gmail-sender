@@ -110,7 +110,7 @@ let container = $('#results');
 
 function createStatement(row, idx){
     let indice_normalizado = row[headers.indice_normalizado].trim().endsWith('%') ? 
-            parseInt(row[headers.indice_normalizado]) : 75,
+            parseInt(row[headers.indice_normalizado]) : 0,
 
         regla_asignacion = row[headers.regla_asignacion].trim() != '' ? 1 : 0,
 
@@ -121,16 +121,16 @@ function createStatement(row, idx){
 
         observacion = getObservacion(row[headers.observacion].trim()),
 
-        cve_col = row[headers.cve_col] != 'NULL' ?
+        cve_col = row[headers.cve_col] != 'NULL' && row[headers.cve_col].trim() != '' ?
             parseInt(row[headers.cve_col]) : 0,
 
         cp = row[headers.cp].startsWith("'") ? 
             parseInt(row[headers.cp].substring(1)) : parseInt(row[headers.cp]),
 
-        cve_mpio = row[headers.cve_mpio] != 'NULL' ?
+        cve_mpio = row[headers.cve_mpio] != 'NULL' && row[headers.cve_mpio].trim() != '' ?
             parseInt(row[headers.cve_mpio]) : 0,
 
-        cve_estado = row[headers.cve_estado] != 'NULL' ?
+        cve_estado = row[headers.cve_estado] != 'NULL' && row[headers.cve_estado].trim() != '' ?
             parseInt(row[headers.cve_estado]) : 0,
 
         recibe_grua = row[headers.recibe_grua].trim() != 'NO' ? 1 : 0,
@@ -212,13 +212,13 @@ function createStatement(row, idx){
         , ${row[headers.capacidad_maxima]}
         , ${row[headers.capacidad_actual]}
         ,'${row[headers.supervisor_encargado]}'
-        ,'${row[headers.correo_supervisor]}'
-        ,'${row[headers.nombre_anexo]}'
+        ,'${e(row[headers.correo_supervisor])}'
+        ,'${e(row[headers.nombre_anexo])}'
         ,'${row[headers.calle_anexo]}'
         ,'${row[headers.numero_anexo]}'
         ,'${row[headers.num_int_anexo]}'
         , ${cve_col_anexo}
-        ,'${row[headers.colonia_anexo]}}'
+        ,'${row[headers.colonia_anexo]}'
         , ${cp_anexo}
         , ${cve_mpio_anexo}
         ,'${row[headers.delg_municipio_anexo]}'
@@ -230,8 +230,12 @@ function createStatement(row, idx){
         ,${extension_anexo}
         ,'${row[headers.horario_anexo]}'
         ,'${row[headers.responsable_anexo]}'
-        ,'${row[headers.correo_responsable_anexo]}'
+        ,'${e(row[headers.correo_responsable_anexo])}'
     )`;
+}
+
+function e(s){
+    return s.replace(/\'/gi, '');
 }
 
 function createStatementBaja(row, idx){
