@@ -121,29 +121,29 @@ function createStatement(row, idx){
 
         observacion = getObservacion(row[headers.observacion].trim()),
 
-        cve_col = row[headers.cve_col] != 'NULL' && row[headers.cve_col].trim() != '' ?
+        cve_col = row[headers.cve_col] != 'NULL' && row[headers.cve_col].trim() != '' && row[headers.cve_col] != '#N/A' ?
             parseInt(row[headers.cve_col]) : 0,
 
         cp = row[headers.cp].startsWith("'") ? 
             parseInt(row[headers.cp].substring(1)) : parseInt(row[headers.cp]),
 
-        cve_mpio = row[headers.cve_mpio] != 'NULL' && row[headers.cve_mpio].trim() != '' ?
+        cve_mpio = row[headers.cve_mpio] != 'NULL' && row[headers.cve_mpio] != '#N/A' && row[headers.cve_mpio].trim() != '' ?
             parseInt(row[headers.cve_mpio]) : 0,
 
-        cve_estado = row[headers.cve_estado] != 'NULL' && row[headers.cve_estado].trim() != '' ?
+        cve_estado = row[headers.cve_estado] != 'NULL' && row[headers.cve_estado] != '#N/A' && row[headers.cve_estado].trim() != '' ?
             parseInt(row[headers.cve_estado]) : 0,
 
         recibe_grua = row[headers.recibe_grua].trim() != 'NO' ? 1 : 0,
 
         clave_categoria = getClaveCategoria(row[headers.clave_categoria]),
 
-        extension1 = row[headers.extension1].trim() != '' ? 
+        extension1 = row[headers.extension1].trim() != '' && row[headers.extension1].trim() != '#N/A' ? 
             parseInt(row[headers.extension1]) : 0,
 
-        extension2 = row[headers.extension2].trim() != '' ? 
+        extension2 = row[headers.extension2].trim() != '' && row[headers.extension2].trim() != '#N/A' ? 
             parseInt(row[headers.extension2]) : 0,
 
-        extension3 = row[headers.extension3].trim() != '' ? 
+        extension3 = row[headers.extension3].trim() != '' && row[headers.extension3].trim() != '#N/A' ? 
             parseInt(row[headers.extension3]) : 0,
 
         cve_col_anexo = row[headers.cve_col_anexo].trim() != '#N/A' && row[headers.cve_col_anexo].trim() != '' ?
