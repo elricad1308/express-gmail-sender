@@ -63,6 +63,53 @@ const headers = {
     longitud_anexo: 46
 };
 
+const headers_proveedores = {
+    idu: 0
+    ,oficina_regional: 1
+    ,oficina_cargada: 2
+    ,rfc: 3
+    ,indice_normalizado: 4
+    ,regla_asignacion: 5
+    ,tipo_prioridad: 6
+    ,nivel_asignacion: 7
+    ,observacion_regla: 8
+    ,clave_mx: 9
+    ,razon_social: 10
+    ,nombre_comercial: 11
+    ,calle: 12
+    ,numero: 13
+    ,num_int: 14
+    ,cve_colonia: 15
+    ,colonia: 16
+    ,cp: 17
+    ,cve_delegacion_municipio: 18
+    ,delegacion_municipio: 19
+    ,cve_estado: 20
+    ,estado: 21
+    ,latitud: 22
+    ,longitud: 23
+    ,clave_proveedor: 24
+    ,recibe_grua: 25
+    ,tipo_proveedor: 26
+    ,clave_categoria: 27
+    ,tipo_unidad: 28
+    ,otras_marcas: 29
+    ,clave_marca: 30
+    ,marcas_atienden: 31
+    ,clave_anios: 32
+    ,modelos_atienden: 33
+    ,telefono1: 34
+    ,extension1: 35
+    ,telefono2: 36
+    ,extension2: 37
+    ,telefono3: 38
+    ,extension3: 39
+    ,capacidad_maxima: 40
+    ,capacidad_actual: 41
+    ,supervisor_encargado: 42
+    ,correo_supervisor: 43
+};
+
 const container = $('#results');
 
 function calcDistancias(results){
@@ -155,6 +202,19 @@ function createSqlStatement(row){
     ),`
 }
 
+function createUpdateClavesSepomexStatement(results) {
+    let data = results.data;
+    container.html('');
+
+    for(const row of data) {
+        container.append(`UPDATE proveedores SET 
+            cve_col=${row[3]} 
+            ,cve_mpio=${row[5]}
+            ,cve_estado=${row[7]}
+        WHERE id_proveedor = ${row[0]};<br>`)
+    }
+}
+
 function dumpSql(results){
     var data = results.data;
 
@@ -209,6 +269,57 @@ function dumpSql(results){
     for(var i=1; i < data.length; i++){
         console.log(`processing row ${i}`);
         container.append(`${createSqlStatement(data[i])}<br>`);
+    }
+}
+
+async function dumpSqlProveedores(results) {
+    var data = results.data;
+
+    container.html('');
+
+    // Insert header
+    container.html(`INSERT INTO proveedores (
+        id_proveedor
+        ,idu
+        ,oficina_regional
+        ,oficina_cargada
+        ,rfc
+        ,tipo_prioridad
+        ,nivel_asignacion
+        ,observacion_regla
+        ,razon_social
+        ,nombre_comercial
+        ,calle
+        ,numero
+        ,num_int
+        ,colonia
+        ,cp
+        ,delegacion_municipio
+        ,estado
+        ,latitud
+        ,longitud
+        ,clave_proveedor
+        ,tipo_proveedor
+        ,tipo_unidad
+        ,telefono1
+        ,extension1
+        ,telefono2
+        ,extension2
+        ,telefono3
+        ,extension3
+        ,supervisor_encargado
+        ,correo_supervisor
+    ) VALUES `);
+
+    // Get coords and print statement for each row
+    var i = 0;
+    for(const row of data) {
+        if(i != 0) {
+            let statement = await getProveedorStatement(row, i);
+            container.append(`${statement}<br>`);
+        }
+
+        i++;
     }
 }
 
@@ -388,6 +499,146 @@ function getLatLong(dir) {
     return $.get(`${base}address=${encoded_dir}`);
 }
 
+function getObservacionRegla(observacion) {
+    let valor = 0;
+
+    switch(observacion) {
+        case 'POR UBICACIÓN':
+            valor = 37; break;
+
+        case 'POR UBICACIÓN Y TIPO DE DAÑO':
+            valor = 38; break;
+
+        case 'TIPO DE LESIONADO Y UBICACION':
+            valor = 39; break;
+
+        case 'TODO TIPO DE LESIONADO':
+            valor = 40; break;
+    }
+
+    return valor;
+}
+
+function getTipoProveedor(proveedor){
+    let valor = 0;
+
+    switch(proveedor) {
+        case 'OBRA CIVIL':
+            valor = 41; break;
+
+        case 'CRISTALERA': 
+            valor = 42; break;
+
+        case 'HOSPITAL':
+            valor = 43; break;
+    }
+
+    return valor;
+}
+
+function getTipoUnidad(unidad) {
+    let valor = 0;
+
+    switch(unidad){
+        case 'AMBULATORIO':
+            valor = 44; break;
+
+        case 'AMPLIA':
+            valor = 45; break;
+
+        case 'CRISTALES':
+            valor = 46; break;
+
+        case 'DAÑOS LEVES Y MEDIANOS':
+            valor = 47; break;
+
+        case 'DAÑOS LEVES Y MEDIOS':
+            valor = 48; break;
+
+        case 'HOSPITALARIO':
+            valor = 49; break;
+
+        case 'SOLO DAÑOS ECOLOGICOS':
+            valor = 50; break;
+
+        case 'TODOS':
+            valor = 51; break;
+    }
+
+    return valor;
+}
+
+async function getProveedorStatement(row, i) {
+    // Crea la dirección para geolocalizarla
+    let direccion = [
+        row[headers_proveedores.calle].trim()
+        ,row[headers_proveedores.numero].trim()
+        ,row[headers_proveedores.colonia].trim()
+        ,row[headers_proveedores.delegacion_municipio].trim()
+        ,row[headers_proveedores.estado].trim()
+    ].join(' ');
+
+    let geocode = await getLatLong(direccion);
+
+    // Extrae la latitud y longitud del resultado
+    let latitud = 0
+        ,longitud = 0;
+
+    try {
+        const location = geocode.results[0].geometry.location;
+        latitud = location.lat;
+        longitud = location.lng;
+    } catch(err) {
+        console.error(err);
+    }
+
+    // Realiza el preprocesamiento de datos
+    let idu = row[headers_proveedores.idu].trim() != '' ? row[headers_proveedores.idu] : 0
+
+        ,tipo_prioridad = row[headers_proveedores.tipo_prioridad] == 'ALTA' ? 31 : 0
+
+        ,observacion_regla = getObservacionRegla(row[headers_proveedores.observacion_regla].trim())
+
+        ,cp = parseInt(row[headers_proveedores.cp].replace("'", ''))
+
+        ,tipo_proveedor = getTipoProveedor(row[headers_proveedores.tipo_proveedor].trim())
+
+        ,tipo_unidad = getTipoUnidad(row[headers_proveedores.tipo_unidad].trim());
+
+    return `(
+        '${i}'
+        ,'${idu}'
+        ,'${row[headers_proveedores.oficina_regional]}'
+        ,'${row[headers_proveedores.oficina_cargada]}'
+        ,'${row[headers_proveedores.rfc]}'
+        ,'${tipo_prioridad}'
+        ,'${parseInt(row[headers_proveedores.nivel_asignacion])}'
+        ,'${observacion_regla}'
+        ,'${row[headers_proveedores.razon_social]}'
+        ,'${row[headers_proveedores.nombre_comercial]}'
+        ,'${row[headers_proveedores.calle]}'
+        ,'${row[headers_proveedores.numero]}'
+        ,'${row[headers_proveedores.num_int]}'
+        ,'${row[headers_proveedores.colonia]}'
+        ,'${cp}'
+        ,'${row[headers_proveedores.delegacion_municipio]}'
+        ,'${row[headers_proveedores.estado]}'
+        ,'${latitud}'
+        ,'${longitud}'
+        ,'${row[headers_proveedores.clave_proveedor]}'
+        ,'${tipo_proveedor}'
+        ,'${tipo_unidad}'
+        ,'${row[headers_proveedores.telefono1]}'
+        ,'${row[headers_proveedores.extension1]}'
+        ,'${row[headers_proveedores.telefono2]}'
+        ,'${row[headers_proveedores.extension2]}'
+        ,'${row[headers_proveedores.telefono3]}'
+        ,'${row[headers_proveedores.extension3]}'
+        ,'${row[headers_proveedores.supervisor_encargado]}'
+        ,'${row[headers_proveedores.correo_supervisor]}'
+    ),`;
+}
+
 function parse(){
     // Carga el archivo CSV en memoria
     $('#file').parse({
@@ -398,7 +649,9 @@ function parse(){
             // complete: getCoordsBaja              // Función diseñada para la estructura de la hoja 'Baja'
             // complete: getCoordsAnexoActuales     // Función diseñada para los anexos de actuales
             // complete: calcDistancias             // Función para calcular distancias
-            complete: getCoordsPowerBI              // Función para crear sentencias sql
+            // complete: getCoordsPowerBI              // Función para crear sentencias sql
+            // complete: dumpSqlProveedores
+            complete: createUpdateClavesSepomexStatement
         },
         complete: function(){
             alert('Todas las direcciones fueron procesadas');
