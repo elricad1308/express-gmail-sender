@@ -38,42 +38,46 @@ const headers = {
     ap_pat_conductor     : 36,
     ap_mat_conductor     : 37,
     correo               : 38,
-    celular              : 39
+    celular              : 39,
+    latitud              : 40,
+    longitud             : 41
 };
 
 function createStatement(row){
     return `(
-        ${row[headers.subramo_siniestro]},
-        '${row[headers.oficina]}',
-        ${row[headers.siniestro]},
-        ${row[headers.folio]},
-        ${row[headers.subramo_poliza]},
-        '${row[headers.sucursal]}',
-        ${row[headers.poliza]},
-        ${row[headers.endoso]},
-        ${row[headers.inciso]},
-        '${to_sql_date(row[headers.inicio_vigencia])}',
-        '${to_sql_date(row[headers.fin_vigencia])}',
-        '${row[headers.agente]}',
-        '${row[headers.marca]}',
-        ${row[headers.regla] != '' ? row[headers.regla] : 0},
-        '${row[headers.tipo]}',
-        '${row[headers.bth] != '' ? row[headers.bth] : 'N'}',
-        '${row[headers.agencia_bth]}',
-        '${row[headers.btb] != '' ? row[headers.btb] : 'N'}',
-        '${row[headers.convenio] != '' ? row[headers.convenio] : 'N'}',
-        '${row[headers.causa]}',
-        ${row[headers.cobertura]},
-        ${parseFloat(row[headers.estimacion])},
-        ${row[headers.tipo_vehiculo]},
-        '${row[headers.descripcion_tipo]}',
-        '${row[headers.descripcion_vehiculo]}',
-        ${row[headers.anio_vehiculo]},
-        '${row[headers.serie]}',
-        '${row[headers.nombre_conductor]}',
-        '${row[headers.ap_pat_conductor]}',
-        '${row[headers.ap_mat_conductor]}',
-        '${row[headers.correo]}'
+        '${row[headers.subramo_siniestro].trim()}',
+        '${row[headers.oficina].trim()}',
+        '${row[headers.siniestro].trim()}',
+        '${row[headers.folio].trim()}',
+        '${row[headers.subramo_poliza].trim()}',
+        '${row[headers.sucursal].trim()}',
+        '${row[headers.poliza].trim()}',
+        '${row[headers.endoso].trim()}',
+        '${row[headers.inciso].trim()}',
+        '${to_sql_date(row[headers.inicio_vigencia].trim())}',
+        '${to_sql_date(row[headers.fin_vigencia].trim())}',
+        '${row[headers.agente].trim()}',
+        '${row[headers.marca].trim()}',
+        '${row[headers.regla] != '' ? row[headers.regla].trim() : 0}',
+        '${row[headers.tipo].trim()}',
+        '${row[headers.bth] != '' ? row[headers.bth].trim() : 'N'}',
+        '${row[headers.agencia_bth].trim()}',
+        '${row[headers.btb] != '' ? row[headers.btb].trim() : 'N'}',
+        '${row[headers.convenio] != '' ? row[headers.convenio].trim() : 'N'}',
+        '${row[headers.causa].trim()}',
+        '${row[headers.cobertura].trim()}',
+        '${parseFloat(row[headers.estimacion].replace(',', ''))}',
+        '${row[headers.tipo_vehiculo].trim()}',
+        '${row[headers.descripcion_tipo].trim()}',
+        '${row[headers.descripcion_vehiculo].trim()}',
+        '${row[headers.anio_vehiculo].trim()}',
+        '${row[headers.serie].trim()}',
+        '${row[headers.nombre_conductor].trim()}',
+        '${row[headers.ap_pat_conductor].trim()}',
+        '${row[headers.ap_mat_conductor].trim()}',
+        '${row[headers.correo].trim()}',
+        '${row[headers.latitud].trim()}',
+        '${row[headers.longitud].trim()}'
     )`;
 }
 
@@ -134,7 +138,9 @@ function dumpSql(results){
         nombre_conductor,
         ap_pat_conductor,
         ap_mat_conductor,
-        correo
+        correo,
+        lat_referencia,
+        lon_referencia
     ) VALUES <br> `);
 
     data.forEach((el, idx) => {
@@ -144,23 +150,23 @@ function dumpSql(results){
     });
 }
 
+function to_sql_date(value){
+    let aux = value.split('/');
+
+    return `${aux[2]}-${aux[1]}-${aux[0]}`;
+}
+
 function parse(){
     $('#file').parse({
         config: {
             delimiter: ",",
             header: false,
-            complete: dumpMarca
+            complete: dumpSql
         }, 
         complete: function(){
             alert('Todas las pruebas procesadas con éxito');
         }
     })
-}
-
-function to_sql_date(value){
-    let aux = value.split('/');
-
-    return `${aux[2]}-${aux[1]}-${aux[0]}`;
 }
 
 $(function(){
